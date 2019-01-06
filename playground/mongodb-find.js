@@ -11,7 +11,8 @@ MongoClient.connect('mongodb://localhost:27017/TodoApp', { useNewUrlParser: true
 
     const db = client.db('TodoApp');
 
-    // db.collection('Todo').find({
+    //find specific doc with ID
+    // db.collection('Todos').find({
     //     _id: ObjectID('5c303c84d6090d2808394c45')
     // }).toArray().then( (docs) =>{
     //     console.log('Todo')
@@ -20,14 +21,31 @@ MongoClient.connect('mongodb://localhost:27017/TodoApp', { useNewUrlParser: true
     //     console.log('Error found:', err)
     // } )
 
-    // db.collection('Todo').find().count().then( (count) =>{
+    //find all todos
+    // db.collection('Todos').find().toArray().then( (docs) =>{
+    //     console.log('Todo')
+    //     console.log(JSON.stringify(docs,undefined,2))
+    // }, err=>{
+    //     console.log('Error found:', err)
+    // } )
+
+    // using count
+    // db.collection('Todos').find().count().then( (count) =>{
     //     console.log(`Found ${count} todo(s)` )
     // }, err=>{
     //     console.log('Error found:', err)
     // } )
 
-    db.collection("Users").find({name: "Manuel"}).toArray().then((arr)=>{
-        console.log('Users')
+    // find user with query
+    // db.collection("Users").find({name: "Manuel"}).toArray().then((arr)=>{
+    //     console.log('Users')
+    //     console.log(JSON.stringify(arr,undefined,2))
+    // },(err)=>{
+    //     console.log("error found: ", err)
+    // })
+
+    //find all users
+    db.collection("Users").find({}).toArray().then((arr)=>{
         console.log(JSON.stringify(arr,undefined,2))
     },(err)=>{
         console.log("error found: ", err)
