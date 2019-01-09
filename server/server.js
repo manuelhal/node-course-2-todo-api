@@ -12,7 +12,7 @@ const app = express()
 app.use(bodyParser.json())
 
 
-//create todo API
+//POST todos route API
 app.post('/todos', (req, res) => {
     // console.log('req.body=', req.body)
     const todo = new Todo({
@@ -27,7 +27,20 @@ app.post('/todos', (req, res) => {
     })
 })
 
-//create user API
+
+//GET todos route API
+app.get('/todos', (req, res) => {
+    Todo.find({})
+        .then(todos => {
+            //the returning value (todos) from DB is an array and we're converted to obj with destructuring concept
+            res.send({ todos })
+        }, err => {
+            res.status(400).send('ERROR collecting todos:', err)
+        })
+})
+
+
+//POST users route API
 app.post('/users', (req, res) => {
     const user = new User({
         email: req.body.email
@@ -42,6 +55,8 @@ app.post('/users', (req, res) => {
 })
 
 
+
+//server is listening to port 3000
 app.listen(3000, () => {
     console.log('Started on port 3000')
 })
