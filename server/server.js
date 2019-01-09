@@ -55,6 +55,26 @@ app.post('/users', (req, res) => {
 })
 
 
+//GET users route API
+app.get('/users', (req, res) => {
+
+    User.find({}).then(users => {
+        // console.log('Returning all users', users)
+        console.log('Returning all users...')
+        res.send({ users })
+    }, err => {
+        console.log('Unable to retrieve users', err.message)
+        res.status(400).send(err)
+    })
+})
+
+
+
+//handling other routes
+app.get('*', (req, res) => {
+    console.log('response to other routes (catch all)')
+    res.send('Nothing here, please go back')
+})
 
 //server is listening to port 3000
 app.listen(3000, () => {
