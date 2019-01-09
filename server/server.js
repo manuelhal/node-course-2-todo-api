@@ -1,5 +1,6 @@
 const express = require('express')
 const bodyParser = require('body-parser')
+const { ObjectId } = require('mongodb')
 
 const { mongoose } = require('./db/mongoose')
 const { Todo } = require('./model/todo')
@@ -28,7 +29,7 @@ app.post('/todos', (req, res) => {
 })
 
 
-//GET todos route API
+//GET todos route API (all todos)
 app.get('/todos', (req, res) => {
     Todo.find({})
         .then(todos => {
@@ -37,6 +38,34 @@ app.get('/todos', (req, res) => {
         }, err => {
             res.status(400).send('ERROR collecting todos:', err)
         })
+})
+
+
+//GET /todos/id rout API (todo with id)
+app.get('/todos/:id', (req,res)=>{
+    const todoId= req.params.id
+    //check if the id is proper
+    if(!ObjectId.isValid(todoId)){
+        // console.log('ERROR!!! Invalid ID format ')
+        // IMPORTANT!! need 'return' kalo ga bakal execute next line, Todo.findbyId() function. 
+        return res.status(404).send()
+        // return res.status(404).send('ERROR!!! Invalid ID format ') //ga perlu kirim message body, just empty body .send()
+    }
+
+    Todo.findById(todoId)
+    .then(todo=>{
+        if(!todo){
+            // console.log('Unable to find that todo.....')
+            //need 'return' kalo ga will exceute the next line
+            return res.status(404).send() 
+        }
+        // console.log('Find 1 todo:',todo)
+        res.send({ todo }) //send todo as object
+    })
+    .catch(err=>{
+        // console.log('CATCH ERROR finding a todo with that ID.....')
+        res.status(400).send('CATCH ERROR finding a todo with that ID') 
+    })
 })
 
 
