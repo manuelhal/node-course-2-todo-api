@@ -1,4 +1,4 @@
-const mongoose = require ('mongoose')
+const mongoose = require('mongoose')
 
 //---------------- CREATING USER SCHEMA
 
@@ -15,5 +15,10 @@ const userSchema = new mongoose.Schema({
 const User = mongoose.model('User', userSchema)
 
 
+// export user with destructuring method
+module.exports = { User }
 
-module.exports={ User }
+// //TEST: export user without destructring
+// module.exports = {
+//     Blah: User
+// }

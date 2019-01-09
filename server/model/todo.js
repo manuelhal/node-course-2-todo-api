@@ -1,4 +1,4 @@
-const mongoose = require ('mongoose')
+const mongoose = require('mongoose')
 
 //---------------- CREATING TODO MODEL/ SCHEMA
 const Todo = mongoose.model('Todo', {
@@ -19,4 +19,4 @@ const Todo = mongoose.model('Todo', {
 })
 
 
-module.exports={ Todo }
+module.exports = { Todo }
