@@ -8,6 +8,7 @@ const { User } = require('./model/user')
 // const User = require('./model/user').Blah  //TEST: if not using destructuring method
 
 const app = express()
+const port = process.env.PORT || 3000
 
 app.use(bodyParser.json())
 
@@ -108,8 +109,8 @@ app.get('*', (req, res) => {
 })
 
 //server is listening to port 3000
-app.listen(3000, () => {
-  console.log('Started on port 3000')
+app.listen(port, () => {
+  console.log(`Started on port ${port}`)
 })
 
 module.exports = { app }

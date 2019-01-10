@@ -3,7 +3,7 @@ const mongoose = require('mongoose')
 // mongoose.Promise = global.Promise //might not needed in mongoose 5.x
 mongoose
   .connect(
-    'mongodb://localhost:27017/TodoApp',
+    process.env.MONGODB_URI || 'mongodb://localhost:27017/TodoApp',
     { useNewUrlParser: true }
   )
   .then(result => {
@@ -17,6 +17,4 @@ mongoose
 //     mongoose:mongoose
 // }
 
-module.exports = {
-  mongoose
-}
+module.exports = { mongoose }
