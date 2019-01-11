@@ -133,3 +133,53 @@ describe('GET / todos/:id', () => {
       .end(done)
   })
 })
+
+describe('DELETE /todos/:id', () => {
+  it('should remove a todo', done => {
+    const hexId = todos[1]._id.toHexString()
+
+    request(app)
+      .delete(`/todos/${hexId}`)
+      .expect(200)
+      .expect(res => {
+        // console.log('res.body.todo._id:', res.body.todo._id)
+        expect(res.body.todo._id).toBe(hexId)
+      })
+      //query the DB to make sure the doc is really deleted & doesn't exist
+      .end((err, res) => {
+        if (err) {
+          return done(err)
+        }
+        Todo.findById(hexId)
+          .then(todo => {
+            // console.log('todo should be null:', todo)
+            expect(todo).toNotExist()
+            done()
+          })
+          .catch(err => {
+            console.log('CATCH ERROR=', err)
+            done(err)
+          })
+      })
+  })
+
+  it('should return 404 if todo not found', done => {
+    /*simple mistake:
+    Originally this test always failed, katanya it returns 200-OK (padahal harusnya 404-not found).
+    Setelah ada kali 1 jam ngutak sana sini, masalahya ialah gw set  hexId = todos[1]._id.toHexString(), thinking doc with that hexId already deleted on the previous test right before this test. Gw lupa kalo beforeEach() will be executed BEFORE every test. Jadi ya kalo gw pake hexId = todos[1]._id.toHexString(), sudah pasti delete nya always sukses & return 200 OK. time to zzz now, cape gw maybe udah 1.30am :(
+    So skr gw generate new  id below: */
+    const hexId = new ObjectID().toHexString()
+
+    request(app)
+      .delete(`/todos/${hexId}`)
+      .expect(404)
+      .end(done)
+  })
+
+  it('should return 400 if _id obj is invalid ', done => {
+    request(app)
+      .delete(`/todos/123`)
+      .expect(404)
+      .end(done)
+  })
+})
