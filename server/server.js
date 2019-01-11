@@ -12,6 +12,8 @@ const port = process.env.PORT || 3000
 
 app.use(bodyParser.json())
 
+//======= TODOS ==========
+
 //POST todos route API
 app.post('/todos', (req, res) => {
   // console.log('req.body=', req.body)
@@ -43,7 +45,7 @@ app.get('/todos', (req, res) => {
   )
 })
 
-//GET /todos/id rout API (todo with id)
+//GET /todos/:id rout API (retrive todo with id)
 app.get('/todos/:id', (req, res) => {
   const todoId = req.params.id
   //check if the id is proper
@@ -53,7 +55,6 @@ app.get('/todos/:id', (req, res) => {
     return res.status(404).send()
     // return res.status(404).send('ERROR!!! Invalid ID format ') //ga perlu kirim message body, just empty body .send()
   }
-
   Todo.findById(todoId)
     .then(todo => {
       if (!todo) {
@@ -69,6 +70,35 @@ app.get('/todos/:id', (req, res) => {
       res.status(400).send('CATCH ERROR finding a todo with that ID')
     })
 })
+
+//DELETE /todos/:id rout API (delete todo with id)
+app.delete('/todos/:id', (req, res) => {
+  //check if user enter a correct/valid id
+  const docId = req.params.id
+
+  if (!ObjectId.isValid(docId)) {
+    // console.log('ID is not valid')
+    return res.status(400).send()
+  }
+  //id is valid
+  Todo.findByIdAndDelete(docId)
+    .then(todo => {
+      // console.log('todo=', todo)
+      if (!todo) {
+        // console.log('No doc found, unable to delete')
+        res.status(404).send()
+      } else {
+        // console.log('Doc found and deleted')
+        res.status(200).send({ todo })
+      }
+    })
+    .catch(err => {
+      console.log('ERROR CATCH: ', err.message)
+      return res.status(400).send('400 BAD REQUEST. ERR')
+    })
+})
+
+//======= USERS ==========
 
 //POST users route API
 app.post('/users', (req, res) => {
