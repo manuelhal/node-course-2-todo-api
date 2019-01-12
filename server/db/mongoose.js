@@ -7,7 +7,7 @@ mongoose
     { useNewUrlParser: true }
   )
   .then(result => {
-    console.log('-----> connecting to the DB server')
+    console.log('-----> it is now connecting to the DB server')
   })
   .catch(err => {
     console.log('-----> error connecting to the server:', err.message)

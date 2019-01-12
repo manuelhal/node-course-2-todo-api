@@ -1,3 +1,4 @@
+const _ = require('lodash')
 const express = require('express')
 const bodyParser = require('body-parser')
 const { ObjectId } = require('mongodb')
@@ -96,6 +97,43 @@ app.delete('/todos/:id', (req, res) => {
       console.log('ERROR CATCH: ', err.message)
       return res.status(400).send('400 BAD REQUEST. ERR')
     })
+})
+
+//PATCH /todos/:id route API (update todo with id)
+app.patch('/todos/:id', (req, res) => {
+  const id = req.params.id
+  const body = _.pick(req.body, ['text', 'completed'])
+
+  //check if id is correct
+  if (!ObjectId.isValid(id)) {
+    // console.log('ID is not valid, doc not found')
+    return res.status(404).send()
+  }
+
+  //setting the completedAt value with condition
+  if (_.isBoolean(body.completed) && body.completed) {
+    body.completedAt = new Date().getTime()
+  } else {
+    body.completed = false
+    body.completedAt = null
+  }
+
+  // console.log('PATCH - updating DB now with body = ', body)
+  //update the DB
+  //example: https://mongoosejs.com/docs/api.html#model_Model.findOneAndUpdate
+  Todo.findOneAndUpdate(
+    { _id: id },
+    { $set: body },
+    { new: true },
+    (err, doc) => {
+      if (err) {
+        console.log('E R R O R - cannot find & update user', err)
+        return res.send(404).body()
+      }
+      // console.log('SUCCESS: doc upadted:', doc)
+      res.status(200).send({ doc })
+    }
+  )
 })
 
 //======= USERS ==========
