@@ -8,7 +8,12 @@ const { Todo } = require('./../model/todo')
 //fake todos data for testing
 const todos = [
   { _id: new ObjectID(), text: 'Test todo #1' },
-  { _id: new ObjectID(), text: 'Test todo #2' }
+  {
+    _id: new ObjectID(),
+    text: 'Test todo #2',
+    completed: true,
+    completedAt: 123
+  }
 ]
 
 //delete all docs in Todos collection, then added 2 docs (for the GET/todos route test)
@@ -180,6 +185,48 @@ describe('DELETE /todos/:id', () => {
     request(app)
       .delete(`/todos/123`)
       .expect(404)
+      .end(done)
+  })
+})
+
+describe('PATCH /todos/:id', () => {
+  it('should update the todo doc', done => {
+    const hexId = todos[0]._id.toHexString()
+    const text = 'testing 123'
+    request(app)
+      .patch(`/todos/${hexId}`)
+      .send({ text: text, completed: true })
+      .expect(200)
+      .expect(res => {
+        /*
+        // console.log('res.body=', res.body)
+        important: res.body.xxx, value of xxx is depends on whatever we call it on the server.js. I call it doc so the obj name is
+        res.body.doc
+        // console.log('res.body.doc=', res.body.doc)
+        */
+        expect(res.body.doc.text).toBe(text)
+        expect(res.body.doc.completed).toBe(true)
+        // expect(res.body.doc.completedAt).toBeMoreThan(0) //this works too
+        expect(res.body.doc.completedAt).toBeA('number') //but the guru use this
+      })
+      .end(done)
+  })
+
+  it('should clear completedAt when todo is not completed', done => {
+    const hexId = todos[1]._id.toHexString()
+    const text = 'testing 789'
+    request(app)
+      .patch(`/todos/${hexId}`)
+      .send({ text: text, completed: false })
+      .expect(200)
+      .expect(res => {
+        // console.log('res.body.doc=', res.body.doc)
+        expect(res.body.doc.text).toBe(text)
+        expect(res.body.doc.completed).toBe(false)
+        // expect(res.body.doc.completedAt).toNotExist() //the guru use this
+        // expect(res.body.doc.completedAt).toBeNull //this works too
+        expect(res.body.doc.completedAt).toBe(null) //this works too, so i'm gonna stick with this
+      })
       .end(done)
   })
 })
