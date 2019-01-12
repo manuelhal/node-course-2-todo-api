@@ -121,19 +121,21 @@ app.patch('/todos/:id', (req, res) => {
   // console.log('PATCH - updating DB now with body = ', body)
   //update the DB
   //example: https://mongoosejs.com/docs/api.html#model_Model.findOneAndUpdate
-  Todo.findOneAndUpdate(
-    { _id: id },
-    { $set: body },
-    { new: true },
-    (err, doc) => {
-      if (err) {
-        console.log('E R R O R - cannot find & update user', err)
-        return res.send(404).body()
+  Todo.findOneAndUpdate({ _id: id }, { $set: body }, { new: true })
+    .then(doc => {
+      // throw new Error('are you catching this error?')
+      if (!doc) {
+        // console.log('Document not found')
+        return res.status(404).send()
       }
+      // console.log('_.isNull(doc) = ', _.isNull(doc))
       // console.log('SUCCESS: doc upadted:', doc)
       res.status(200).send({ doc })
-    }
-  )
+    })
+    .catch(err => {
+      console.log('ERROR CATCHED: ', err)
+      res.status(400).send()
+    })
 })
 
 //======= USERS ==========
