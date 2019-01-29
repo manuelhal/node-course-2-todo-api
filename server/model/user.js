@@ -45,7 +45,7 @@ UserSchema.methods.toJSON = function () {
 }
 
 
-//create methods
+//create methods (instance method)
 UserSchema.methods.generateAuthToken = function () {
     const user = this;
     // console.log('##### user=', user);
@@ -64,6 +64,56 @@ UserSchema.methods.generateAuthToken = function () {
     });
 
 };
+
+// created model method (not instance method)
+UserSchema.statics.findByToken = function (token) {
+    const User = this;
+    var decoded;
+    /*  be very carefull:
+        gw mau declare decoded and set to null:
+        const decoded; 
+        -> is syntax error (Missing initializer in const declaration)
+
+        but kalo:
+        var decoded;
+        -> this is ok
+
+        then kalo gw declare & initialize to null like this: 
+        const decoded = null;
+        -> is also bad.... i kept getting this error:
+        TypeError: Cannot read property '_id' of null
+        
+        masalahnya is variable scope issue:
+        kalo gw declaare const decoded = null, then 'decoded' itu di-reassign inside try-catch block.
+        then those 'decoded' variables are 2 different variable. The 'decoded' inside try-catch is scopenya inside 
+        try-catch block only. Makanya gw dapet "Cannot read property '_id' of null" error, soalnya itu 'decoded' variable
+        outside try-catch block which is has value of null
+
+        so, in this case use var not const
+    
+    */
+    try {
+        decoded = jwt.verify(token, 'abc123');
+
+    } catch (error) {
+        // will return a rejected promise 
+        return Promise.reject();
+    }
+
+    console.log('------> decoded=', decoded);
+    return User.findOne({
+        _id: decoded._id,
+        'tokens.token': token,
+        'tokens.access': 'auth'
+    });
+
+    /* 
+       sebetulnya find by _id udah cukup sih. tapi mungkin Andrew (the teacher of this course)
+       mau make sure to find in the very specific/secure way (including search by token & access).
+       Also maybe Andrew mau kasih liat gimana cara utk search in the nested array, which is musti inside quotes
+       'tokens.token' and 'token.access'  
+    */
+}
 
 
 //creating user model

@@ -8,6 +8,7 @@ const { mongoose } = require('./db/mongoose')
 const { Todo } = require('./model/todo')
 const { User } = require('./model/user')
 // const User = require('./model/user').Blah  //TEST: if not using destructuring method
+const { authenticate } = require('./middleware/authenticate');
 
 const app = express()
 const port = process.env.PORT
@@ -161,9 +162,8 @@ app.post('/users', (req, res) => {
   //   password: req.body.password
   // });
 
-  // user lodash pick method
+  // use lodash pick method
   const body = _.pick(req.body, ['email', 'password']);
-  // console.log('body = ', body);
   const user = new User(body);
 
   // save user doc to db server
@@ -178,8 +178,9 @@ app.post('/users', (req, res) => {
       res.header('x-auth', token).send(user);
       /* 
         instead of override the toJSON method (in user.js),
-        we can return only _id & email by using _.pick() method,
-        see below:
+        we can return only _id & email by using _.pick() method (see below:)
+        But since we're gonna use these special return, it's better to 
+        override the toJSON() method. 
       */
       // const userInfo = _.pick(user, ['_id', 'email']);
       // console.log('userInfo=', userInfo)
@@ -192,6 +193,12 @@ app.post('/users', (req, res) => {
 
 })
 
+
+//GET users/me route, use middleware 'authenticate'
+//-----------------------------------------------------
+app.get('/users/me', authenticate, (req, res) => {
+  res.send(req.user)
+})
 
 
 
