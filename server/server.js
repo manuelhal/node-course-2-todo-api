@@ -14,9 +14,14 @@ const port = process.env.PORT
 
 app.use(bodyParser.json())
 
-//======= TODOS ==========
 
-//POST todos route API
+//==============================
+//======= TODOS route ==========
+//==============================
+
+
+// POST todos route API
+//---------------------------
 app.post('/todos', (req, res) => {
   // console.log('req.body=', req.body)
   const todo = new Todo({
@@ -35,6 +40,7 @@ app.post('/todos', (req, res) => {
 })
 
 //GET todos route API (all todos)
+//-----------------------------------
 app.get('/todos', (req, res) => {
   Todo.find({}).then(
     todos => {
@@ -48,6 +54,7 @@ app.get('/todos', (req, res) => {
 })
 
 //GET /todos/:id rout API (retrive todo with id)
+//--------------------------------------------------
 app.get('/todos/:id', (req, res) => {
   const todoId = req.params.id
   //check if the id is proper
@@ -74,6 +81,7 @@ app.get('/todos/:id', (req, res) => {
 })
 
 //DELETE /todos/:id rout API (delete todo with id)
+//--------------------------------------------------
 app.delete('/todos/:id', (req, res) => {
   //check if user enter a correct/valid id
   const docId = req.params.id
@@ -101,6 +109,7 @@ app.delete('/todos/:id', (req, res) => {
 })
 
 //PATCH /todos/:id route API (update todo with id)
+//-------------------------------------------------
 app.patch('/todos/:id', (req, res) => {
   const id = req.params.id
   const body = _.pick(req.body, ['text', 'completed'])
@@ -139,26 +148,55 @@ app.patch('/todos/:id', (req, res) => {
     })
 })
 
-//======= USERS ==========
+//==============================
+//======= USERS route ==========
+//==============================
 
 //POST users route API
+//-----------------------------------
 app.post('/users', (req, res) => {
-  const user = new User({
-    email: req.body.email
-  })
-  user.save().then(
-    result => {
-      console.log('new user created', result)
-      res.send(result)
-    },
-    err => {
-      console.log('error adding new user', err.message)
-      res.status(400).send(err)
-    }
-  )
+
+  // const user = new User({
+  //   email: req.body.email,
+  //   password: req.body.password
+  // });
+
+  // user lodash pick method
+  const body = _.pick(req.body, ['email', 'password']);
+  // console.log('body = ', body);
+  const user = new User(body);
+
+  // save user doc to db server
+  user.save()
+    .then(result => {
+      // console.log('New User created:', result);
+      return user.generateAuthToken();
+    })
+    .then((token) => {
+      //sending custom header then user doc
+      // console.log('##### token ', token);
+      res.header('x-auth', token).send(user);
+      /* 
+        instead of override the toJSON method (in user.js),
+        we can return only _id & email by using _.pick() method,
+        see below:
+      */
+      // const userInfo = _.pick(user, ['_id', 'email']);
+      // console.log('userInfo=', userInfo)
+      // res.header('x-auth', token).send(userInfo);
+    })
+    .catch((err) => {
+      console.log('ERROR CATCHED: ', err);
+      res.status(400).send(err.message);
+    });
+
 })
 
+
+
+
 //GET users route API
+//-----------------------------------
 app.get('/users', (req, res) => {
   User.find({}).then(
     users => {
